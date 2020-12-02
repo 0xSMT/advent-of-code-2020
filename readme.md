@@ -1,0 +1,3 @@
+# Advent of Code 2020
+
+Each day (along with the data file) is stored in a separate folder. If I try to do the puzzles at launch, the original file will be called 'old.nim' -- this one will be sloppy and quickly thrown together. Afterwards, I will make a more elegant version (while keeping the spirit of the approach of the original) called 'main.nim'. If there is only a 'main.nim' file, it means I chose to sleep rather than try and compete for speed, and only created an "elegant" version.
