@@ -1,29 +1,59 @@
-import sequtils, strutils, math, os, re
+import sequtils, strutils, math, os, re, tables
 
-proc bin(c: char): int = 
-    if c == '#': return 1
-    else:        return 0
+proc check(p: Table[string, string]): bool =
+    try:
+        let byr = p["byr"].parseInt
+        let iyr = p["iyr"].parseInt
+        let eyr = p["eyr"].parseInt
+        let hgt = p["hgt"]
+        let hcl = p["hcl"]
+        let ecl = p["ecl"]
+        let pid = p["pid"]
 
-proc m(s: string): seq[int] = 
-    return s.map(bin)
+        if byr > 2002 or byr < 1920: return false
+        if iyr > 2020 or iyr < 2010: return false
+        if eyr > 2030 or eyr < 2020: return false
 
-proc calc_trees(dx, dy: int, lines: seq[seq[int]]): int =
-    var x = 0
-    var y = 0
+        let cm   = hgt.find("cm")
+        let inch = hgt.find("in")
 
-    let width = lines[0].len
-    let height = lines.len
+        if cm > -1:
+            let cm = hgt[0..<cm].parseInt
+            if cm < 150 or cm > 193: return false
+        elif inch > -1:
+            let inch = hgt[0..<inch].parseInt
+            if inch < 59 or inch > 76: return false
+        else: return false
 
-    var total = 0
+        if not hcl.match(re"^\#[0-9a-f]{6}$"): return false
 
-    while y < height - 1:
-        x = (x + dx) mod width
-        y = y + dy
+        if ecl notin @["amb", "blu", "brn", "grn", "gry", "hzl", "oth"]: return false
 
-        total = total + lines[y][x]
-    
-    total
+        if not pid.match(re"^\d{9}$"): return false
+    except:
+        return false
+        
+    return true
 
-let lines = paramStr(1).open.readAll.splitLines.map(m)
+let pattern = re"([a-z]{3}:\S+)"
 
-echo calc_trees(1, 1, lines) * calc_trees(3, 1, lines) * calc_trees(5, 1, lines) * calc_trees(7, 1, lines) * calc_trees(1, 2, lines)
+let lines = paramStr(1).open.readAll.splitLines
+
+var passports: seq[Table[string, string]] = @[]
+var passport = initTable[string, string]()
+for line in lines:
+    if line.isEmptyOrWhitespace:
+        if passport.len > 0:
+            passports.add passport
+
+        passport = initTable[string, string]()
+    else:
+        let matches = line.findAll(pattern)
+        for m in matches:
+            let entry = m.split(':')
+
+            passport[entry[0]] = entry[1]
+
+passports.add passport
+
+echo passports.filter(check).len
