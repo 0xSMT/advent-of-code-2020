@@ -8,7 +8,7 @@ type
 proc m(str: string): Report =
     var answers = initCountTable[char]()
 
-    var num_people = str.splitLines.len
+    let num_people = str.splitLines.len
     for line in str.splitLines:
         for chr in line:
             answers.inc(chr)
@@ -17,12 +17,12 @@ proc m(str: string): Report =
 
 let reports = paramStr(1).open.readAll.split("\n\n").map(m)
 
-echo reports.map(
-    r => toSeq(r.answers.keys).len
+echo reports.map(report => 
+    toSeq(report.answers.keys).len
 ).sum
 
-echo reports.map(
-    r => toSeq(r.answers.values).filter(
-        t => t == r.people
+echo reports.map(report => 
+    toSeq(report.answers.values).filter(total => 
+        total == report.people
     ).len
 ).sum
