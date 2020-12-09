@@ -1,6 +1,6 @@
 import sequtils, strutils, os, math
 
-let preamble = 25
+let preamble = paramStr(2).parseInt
 
 let numbers = paramStr(1).open.readAll.splitLines.map(parseInt)
 var usables = numbers[0..<preamble]
